@@ -51,3 +51,7 @@ Temporary Items
 *.tmp
 *.crf
 *.d
+*.build_log.htm
+*.lnp
+*.map
+*.sct
