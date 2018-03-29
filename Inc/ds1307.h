@@ -3,7 +3,7 @@
 #include "i2c.h"
 #include <stdbool.h>
 #include <stdlib.h>
-#define DS1307_SLAVE_ADDRESS 0x68 // the slave address (0xD0 read / 0xD1 write)
+#define DS1307_I2C_ADDRESS 0x68 // the slave address (0xD0 read / 0xD1 write)
 #define TIME_STRUCT_SIZE 0x08
 #define DS1307_RAM_SIZE 55
 
@@ -21,7 +21,7 @@ typedef struct {
     bool sqwe;
     bool rs1;
     bool rs0;
-} time;
+} DS1307_time;
 // RS1 | RS0 | SQ output | SQWE | OUT
 //  0  |  0  |    1 Hz   |   1  |  X
 //  0  |  1  |  4.096 Hz |   1  |  X
@@ -30,14 +30,15 @@ typedef struct {
 //  X  |  X  |     0     |   0  |  0
 //  X  |  X  |     1     |   0  |  1
 
-uint8_t* readTime(void);
-void decodeTime(const uint8_t *data, time *s_time);
-uint8_t* encodeData(const time *s_time);
-void writeTime(const time *s_time);
-void printTime(const time *s_time);
+HAL_StatusTypeDef DS1307_Init(void);
+uint8_t* DS1307_ReadTime(void);
+void DS1307_DecodeTime(const uint8_t *data, DS1307_time *s_time);
+uint8_t* DS1307_EncodeData(const DS1307_time *s_time);
+void DS1307_WriteTime(const DS1307_time *s_time);
+void DS1307_PrintTime(const DS1307_time *s_time);
 //void printByte(const uint8_t n);
 //void printRawData(const uint8_t *data, const uint8_t size);
-time getTime(void);
+DS1307_time DS1307_GetTime(void);
 
 // INFO: Addresses are relative!
 // According to documentation:
@@ -46,7 +47,7 @@ time getTime(void);
 // 0x08 - RAM start
 // 0x3F - RAM end (56 bytes)
 // In this function - start address = 0x00 and end address = 0x38 (56 in dec)
-uint8_t* read(const uint8_t start_address, const uint8_t bytes);
+uint8_t* DS1307_Read(const uint8_t start_address, const uint8_t bytes);
 //void write(const uint8_t start_address, const uint8_t bytes, const bool ram, uint8_t* data);
 
 //    u8 *ptr = read(TIME_STRUCT_SIZE, DS1307_RAM_SIZE);

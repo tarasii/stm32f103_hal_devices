@@ -46,6 +46,7 @@
 /* USER CODE BEGIN Includes */
 #include "i2c.h"
 #include "ds1307.h"
+#include "bmp180.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -76,8 +77,9 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	//HAL_StatusTypeDef res;
-	time tm;
-	uint8_t buf[20];
+	DS1307_time tm;
+	BMP180_t BMP180_Data;
+	//uint8_t buf[20];
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -101,14 +103,25 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-	if (HAL_I2C_IsDeviceReady(&hi2c1, DS1307_SLAVE_ADDRESS << 1, 1, 100) == HAL_OK){
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-		tm = getTime();
-		//printTime(&tm);	
-	}	
+
 	printf("Hello!\n\r");
-	HAL_UART_Transmit(&huart1, buf, 6, 100);
+	
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+	
+	if (I2C_IsDeviceConnected(&hi2c1, BMP180_I2C_ADDRESS) == HAL_OK){
+		printf("BMP180 connected\n\r");
+	} else {
+		printf("BMP180 No connected\n\r");
+	}
+	BMP180_Init(&BMP180_Data);
+	
+//	if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+//		tm = DS1307_GetTime();
+//		DS1307_PrintTime(&tm);	
+//	}	
+
+	//HAL_UART_Transmit(&huart1, buf, 6, 100);
 
 	HAL_Delay(500);
 
@@ -123,11 +136,26 @@ int main(void)
   /* USER CODE BEGIN 3 */
 		HAL_Delay(500);
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+    BMP180_StartTemperature(&BMP180_Data);
+		HAL_Delay(BMP180_Data.Delay / 1000);
+		BMP180_ReadTemperature(&BMP180_Data);
 		
-		if (HAL_I2C_IsDeviceReady(&hi2c1, DS1307_SLAVE_ADDRESS << 1, 1, 100) == HAL_OK){
-			tm = getTime();
-			printf("%02d:%02d:%02d\n\r", tm.hours, tm.minutes, tm.seconds);
-		}
+		BMP180_StartPressure(&BMP180_Data, BMP180_Oversampling_UltraHighResolution);
+		HAL_Delay(BMP180_Data.Delay / 1000);
+		BMP180_ReadPressure(&BMP180_Data);
+		
+		printf("T:%2.3f; P:%6d(%3.1f); Alt: %3.2f m\n\r",
+				BMP180_Data.Temperature,
+				BMP180_Data.Pressure, BMP180_GetHgPressure(BMP180_Data.Pressure), 
+				BMP180_Data.Altitude
+		);
+		
+		
+//		if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
+//			tm = DS1307_GetTime();
+//			printf("%02d:%02d:%02d\n\r", tm.hours, tm.minutes, tm.seconds);
+//		}
   }
   /* USER CODE END 3 */
 

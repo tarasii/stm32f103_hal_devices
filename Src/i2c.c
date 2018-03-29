@@ -122,7 +122,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 HAL_StatusTypeDef I2C_ReadBuf(I2C_HandleTypeDef* Handle, uint8_t device_address, uint8_t register_address, uint8_t* data, uint16_t count) {
 
 
-  if (HAL_I2C_Mem_Read(Handle, device_address, register_address, I2C_MEMADD_SIZE_8BIT, data, count, 1000)!= HAL_OK) {
+  if (HAL_I2C_Mem_Read(Handle, device_address << 1, register_address, I2C_MEMADD_SIZE_8BIT, data, count, 1000)!= HAL_OK) {
 		
 		if (HAL_I2C_GetError(Handle) != HAL_I2C_ERROR_AF) {
 	
@@ -143,7 +143,7 @@ HAL_StatusTypeDef I2C_ReadBuf(I2C_HandleTypeDef* Handle, uint8_t device_address,
 HAL_StatusTypeDef I2C_WriteBuf(I2C_HandleTypeDef* Handle, uint8_t device_address, uint16_t register_address, uint8_t* data, uint16_t count) {
 
 	/* Try to transmit via I2C */
-	if (HAL_I2C_Mem_Write(Handle, device_address, register_address, register_address > 0xFF ? I2C_MEMADD_SIZE_16BIT : I2C_MEMADD_SIZE_8BIT, data, count, 1000) != HAL_OK) {
+	if (HAL_I2C_Mem_Write(Handle, device_address << 1, register_address, register_address > 0xFF ? I2C_MEMADD_SIZE_16BIT : I2C_MEMADD_SIZE_8BIT, data, count, 1000) != HAL_OK) {
 
 		/* Check error */
 		if (HAL_I2C_GetError(Handle) != HAL_I2C_ERROR_AF) {
@@ -160,6 +160,10 @@ HAL_StatusTypeDef I2C_WriteBuf(I2C_HandleTypeDef* Handle, uint8_t device_address
 	/* Return OK */
 	return HAL_OK;
 
+}
+
+HAL_StatusTypeDef I2C_IsDeviceConnected(I2C_HandleTypeDef* Handle, uint8_t device_address){
+	return HAL_I2C_IsDeviceReady(Handle, device_address << 1, 1, 100);
 }
 
 /* USER CODE END 1 */

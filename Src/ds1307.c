@@ -2,15 +2,26 @@
 
 extern I2C_HandleTypeDef hi2c1;
 
-uint8_t* readTime(void) {
+uint8_t DS1307_lib_initialized = 0;
+
+HAL_StatusTypeDef DS1307_Init(void) {
+	if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) != HAL_OK) {
+		/* Device is not connected */
+		return HAL_ERROR;
+	}	
+	DS1307_lib_initialized = 1;
+	return HAL_OK;
+}
+
+uint8_t* DS1307_ReadTime(void) {
     uint8_t *received_data = calloc(TIME_STRUCT_SIZE, sizeof(uint8_t));
 
-	  I2C_ReadBuf(&hi2c1, DS1307_SLAVE_ADDRESS << 1, 0, received_data, TIME_STRUCT_SIZE);
+	  I2C_ReadBuf(&hi2c1, DS1307_I2C_ADDRESS, 0, received_data, TIME_STRUCT_SIZE);
 
     return received_data;
 }
 
-void decodeTime(const uint8_t *data, time *s_time) {
+void DS1307_DecodeTime(const uint8_t *data, DS1307_time *s_time) {
     // decode seconds
     uint8_t msd = 0, lsd = 0;
     int8_t /*am_pm = -1,*/_12h_mode = -1;
@@ -60,7 +71,7 @@ void decodeTime(const uint8_t *data, time *s_time) {
 }
 
 // Each number is represented in BCD format, according to documentation
-uint8_t* encodeData(const time *s_time) {
+uint8_t* DS1307_EncodeData(const DS1307_time *s_time) {
     uint8_t *data = calloc(TIME_STRUCT_SIZE, sizeof(uint8_t));
     uint8_t msd, lsd;
 
@@ -105,16 +116,16 @@ uint8_t* encodeData(const time *s_time) {
     return data;
 }
 
-void writeTime(const time *s_time) {
-    uint8_t *data = encodeData(s_time);
+void DS1307_WriteTime(const DS1307_time *s_time) {
+    uint8_t *data = DS1307_EncodeData(s_time);
     //printRawData(data, TIME_STRUCT_SIZE);
 
-	  I2C_WriteBuf(&hi2c1, DS1307_SLAVE_ADDRESS << 1, 0, data, TIME_STRUCT_SIZE);
+	  I2C_WriteBuf(&hi2c1, DS1307_I2C_ADDRESS, 0, data, TIME_STRUCT_SIZE);
 
     free(data);
 }
 
-void printTime(const time *s_time) {
+void DS1307_PrintTime(const DS1307_time *s_time) {
     printf("%2d:%2d:%2d\n\r", s_time->hours, s_time->minutes, s_time->seconds);
 
     switch (s_time->day_of_week) {
@@ -170,15 +181,15 @@ void printTime(const time *s_time) {
 //    }
 //}
 
-time getTime(void) {
-    uint8_t* data = readTime();
-    time s_time;
-    decodeTime(data, &s_time);
+DS1307_time DS1307_GetTime(void) {
+    uint8_t* data = DS1307_ReadTime();
+    DS1307_time s_time;
+    DS1307_DecodeTime(data, &s_time);
     free(data);
     return s_time;
 }
 
-inline bool checkAddreses(const uint8_t start_address, const uint8_t allocated_bytes) {
+inline bool DS1307_CheckAddreses(const uint8_t start_address, const uint8_t allocated_bytes) {
     if ((allocated_bytes <= 0) || (start_address < 0)
             || (start_address + allocated_bytes > DS1307_RAM_SIZE)) {
         return false;
@@ -186,15 +197,15 @@ inline bool checkAddreses(const uint8_t start_address, const uint8_t allocated_b
     return true;
 }
 
-uint8_t* read(const uint8_t start_address, const uint8_t allocated_bytes) {
-    if (!checkAddreses(start_address, allocated_bytes)) {
+uint8_t* DS1307_Read(const uint8_t start_address, const uint8_t allocated_bytes) {
+    if (!DS1307_CheckAddreses(start_address, allocated_bytes)) {
         return 0;
     }
 
     uint8_t *received_data = calloc(allocated_bytes, sizeof(uint8_t));
     uint8_t index = start_address;
 		
-		I2C_ReadBuf(&hi2c1, DS1307_SLAVE_ADDRESS << 1, index, received_data, allocated_bytes);
+		I2C_ReadBuf(&hi2c1, DS1307_I2C_ADDRESS << 1, index, received_data, allocated_bytes);
 
     return received_data;
 }
