@@ -43,11 +43,11 @@ Temporary Items
 .apdisk
 
 # Ivaniv
-.lst
-.iex
-.bak
-.dep
-.o
-.tmp
-.crf
-.d
+*.lst
+*.iex
+*.bak
+*.dep
+*.o
+*.tmp
+*.crf
+*.d
