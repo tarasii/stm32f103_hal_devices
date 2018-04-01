@@ -531,6 +531,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\bmp180.c</FilePath>
             </File>
+            <File>
+              <FileName>hmc5883.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\hmc5883.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

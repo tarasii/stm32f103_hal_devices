@@ -47,6 +47,7 @@
 #include "i2c.h"
 #include "ds1307.h"
 #include "bmp180.h"
+#include "hmc5883.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -79,6 +80,7 @@ int main(void)
 	//HAL_StatusTypeDef res;
 	DS1307_time tm;
 	BMP180_t BMP180_Data;
+	HMC5883L_XYZ_StructTypeDef xyz;
 	//uint8_t buf[20];
   /* USER CODE END 1 */
 
@@ -114,6 +116,12 @@ int main(void)
 		printf("BMP180 No connected\n\r");
 	}
 	BMP180_Init(&BMP180_Data);
+	if (I2C_IsDeviceConnected(&hi2c1, HMC5883L_I2C_ADDRESS) == HAL_OK){
+		printf("HMC5883 connected\n\r");
+	} else {
+		printf("HMC5883 No connected\n\r");
+	}	
+	HMC5883L_Initialize();
 	
 //	if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
@@ -144,13 +152,15 @@ int main(void)
 		BMP180_StartPressure(&BMP180_Data, BMP180_Oversampling_UltraHighResolution);
 		HAL_Delay(BMP180_Data.Delay / 1000);
 		BMP180_ReadPressure(&BMP180_Data);
-		
-		printf("T:%2.3f; P:%6d(%3.1f); Alt: %3.2f m\n\r",
+
+		HMC5883L_GetXYZ(&xyz);	
+		printf("T:%2.3f; P:%6d(%3.1f); Alt: %3.2fm; ang:%3.3f;\n\r",
 				BMP180_Data.Temperature,
 				BMP180_Data.Pressure, BMP180_GetHgPressure(BMP180_Data.Pressure), 
-				BMP180_Data.Altitude
+				BMP180_Data.Altitude, HMC5883L_CountAngle(&xyz)
 		);
 		
+
 		
 //		if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //			tm = DS1307_GetTime();
