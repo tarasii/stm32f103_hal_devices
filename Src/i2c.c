@@ -166,6 +166,17 @@ HAL_StatusTypeDef I2C_IsDeviceConnected(I2C_HandleTypeDef* Handle, uint8_t devic
 	return HAL_I2C_IsDeviceReady(Handle, device_address << 1, 1, 100);
 }
 
+void I2C_Scan(void){
+	uint8_t i;
+	for (i=0;i<128;i++)
+	{
+		if (I2C_IsDeviceConnected(&hi2c1, i) == HAL_OK)
+		{
+			printf(" %02x \n\r",i);
+		}
+	}
+}
+
 /* USER CODE END 1 */
 
 /**

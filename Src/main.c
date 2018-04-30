@@ -48,6 +48,7 @@
 #include "ds1307.h"
 #include "bmp180.h"
 #include "hmc5883.h"
+#include "mpu6050.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -81,6 +82,8 @@ int main(void)
 	DS1307_time tm;
 	BMP180_t BMP180_Data;
 	HMC5883L_XYZ_StructTypeDef xyz;
+	int16_t ag[6];
+	//uint8_t i, tmp;
 	//uint8_t buf[20];
   /* USER CODE END 1 */
 
@@ -131,7 +134,15 @@ int main(void)
 
 	//HAL_UART_Transmit(&huart1, buf, 6, 100);
 
-	HAL_Delay(500);
+
+	if (I2C_IsDeviceConnected(&hi2c1, MPU6050_I2C_ADDRESS) == HAL_OK){
+		printf("MPU6050 connected\n\r");
+	} else {
+		printf("MPU6050 No connected\n\r");
+	}	
+	MPU6050_Initialize();
+	#printf("MPU6050 %02x \n\r", MPU6050_GetDeviceID());
+
 
   /* USER CODE END 2 */
 
@@ -142,8 +153,10 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-		HAL_Delay(500);
+		HAL_Delay(1000);
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		
+
 
     BMP180_StartTemperature(&BMP180_Data);
 		HAL_Delay(BMP180_Data.Delay / 1000);
@@ -160,7 +173,8 @@ int main(void)
 				BMP180_Data.Altitude, HMC5883L_CountAngle(&xyz)
 		);
 		
-
+		MPU6050_GetRawAccelGyro(ag);
+		printf("T:%2.3f; X:%5d; Y:%5d; Z:%5d;\n\r", MPU6050_GetTemperature(MPU6050_GetRawTemperature()), ag[0], ag[1], ag[2]);
 		
 //		if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //			tm = DS1307_GetTime();

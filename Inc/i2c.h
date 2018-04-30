@@ -65,6 +65,8 @@ void MX_I2C1_Init(void);
 HAL_StatusTypeDef I2C_ReadBuf(I2C_HandleTypeDef* Handle, uint8_t device_address, uint8_t register_address, uint8_t* data, uint16_t count);
 HAL_StatusTypeDef I2C_WriteBuf(I2C_HandleTypeDef* Handle, uint8_t device_address, uint16_t register_address, uint8_t* data, uint16_t count);
 HAL_StatusTypeDef I2C_IsDeviceConnected(I2C_HandleTypeDef* Handle, uint8_t device_address);
+void I2C_Scan(void);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
