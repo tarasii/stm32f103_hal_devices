@@ -119,12 +119,23 @@ int main(void)
 		printf("BMP180 No connected\n\r");
 	}
 	BMP180_Init(&BMP180_Data);
+
+	if (I2C_IsDeviceConnected(&hi2c1, MPU6050_I2C_ADDRESS) == HAL_OK){
+		printf("MPU6050 connected\n\r");
+	} else {
+		printf("MPU6050 No connected\n\r");
+	}	
+	MPU6050_Initialize();
+	MPU6050_SetI2CBypass(true);	
+	//printf("MPU6050 %02x \n\r", MPU6050_GetDeviceID());
+
 	if (I2C_IsDeviceConnected(&hi2c1, HMC5883L_I2C_ADDRESS) == HAL_OK){
 		printf("HMC5883 connected\n\r");
 	} else {
 		printf("HMC5883 No connected\n\r");
 	}	
 	HMC5883L_Initialize();
+
 	
 //	if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
@@ -134,14 +145,6 @@ int main(void)
 
 	//HAL_UART_Transmit(&huart1, buf, 6, 100);
 
-
-	if (I2C_IsDeviceConnected(&hi2c1, MPU6050_I2C_ADDRESS) == HAL_OK){
-		printf("MPU6050 connected\n\r");
-	} else {
-		printf("MPU6050 No connected\n\r");
-	}	
-	MPU6050_Initialize();
-	#printf("MPU6050 %02x \n\r", MPU6050_GetDeviceID());
 
 
   /* USER CODE END 2 */

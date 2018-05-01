@@ -377,6 +377,7 @@ uint8_t MPU6050_GetDeviceID(void);
 void MPU6050_GetRawAccelGyro(int16_t* AccelGyro);
 int16_t MPU6050_GetRawTemperature(void);
 float MPU6050_GetTemperature(int16_t temperature);
+void MPU6050_SetI2CBypass(bool bypass);
 
 
 void MPU6050_WriteBits(uint8_t slaveAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);

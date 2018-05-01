@@ -113,7 +113,7 @@ HAL_StatusTypeDef MPU6050_Initialize(void)
 	
 	MPU6050_SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
   MPU6050_SetFullScaleGyroRange(MPU6050_GYRO_FS_250);
-  MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+  MPU6050_SetFullScaleAccelRange(MPU6050_ACCEL_FS_16);
   MPU6050_SetSleepModeStatus(DISABLE);
 	
   return HAL_OK;
@@ -319,5 +319,10 @@ int16_t MPU6050_GetRawTemperature(void)
 float MPU6050_GetTemperature(int16_t temperature)
 {
     return ((float) temperature / 340 + 36.53);
+}
+
+void MPU6050_SetI2CBypass(bool bypass)
+{
+    MPU6050_WriteBit(MPU6050_I2C_ADDRESS, MPU6050_RA_INT_PIN_CFG, MPU6050_INTCFG_I2C_BYPASS_EN_BIT, bypass);
 }
 
