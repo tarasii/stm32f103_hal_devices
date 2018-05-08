@@ -125,9 +125,17 @@ int main(void)
 	} else {
 		printf("MPU6050 No connected\n\r");
 	}	
-	MPU6050_Initialize();
-	MPU6050_SetI2CBypass(true);	
-	//printf("MPU6050 %02x \n\r", MPU6050_GetDeviceID());
+
+	MPU6050(MPU6050_DEFAULT_ADDRESS);
+	MPU6050_initialize();
+	
+	printf("MPU6050 %02x \n\r", MPU6050_getDeviceID());
+
+	MPU6050_setI2CBypassEnabled(true);
+	MPU6050_setI2CMasterModeEnabled(false);
+	
+	//MPU6050_setSlaveRegister(0, HMC5883L_RA_MODE);
+	
 
 	if (I2C_IsDeviceConnected(&hi2c1, HMC5883L_I2C_ADDRESS) == HAL_OK){
 		printf("HMC5883 connected\n\r");
@@ -135,8 +143,40 @@ int main(void)
 		printf("HMC5883 No connected\n\r");
 	}	
 	HMC5883L_Initialize();
-
+	printf("HMC5883 RAW:%d %d %0d \n\r", HMC5883L_GetX(), HMC5883L_GetZ(), HMC5883L_GetY());	
 	
+	MPU6050_setI2CBypassEnabled(false);
+	MPU6050_setI2CMasterModeEnabled(true);
+
+	//read hmc5883 id
+//	MPU6050_setSlaveAddress(0, 128 + HMC5883L_I2C_ADDRESS);
+//	MPU6050_setSlaveRegister(0, HMC5883L_RA_ID_A);
+//	MPU6050_setSlaveDataLength(0, 3);	
+//	MPU6050_setSlaveEnabled(0, true);
+//			printf("6050 slave:%02x %02x %02x\n\r", 
+//	MPU6050_getExternalSensorByte(0),
+//	MPU6050_getExternalSensorByte(1),
+//	MPU6050_getExternalSensorByte(2));
+
+//	MPU6050_setSlaveAddress(0, HMC5883L_I2C_ADDRESS);
+//	MPU6050_setSlaveRegister(0, HMC5883L_RA_DATAX_H);
+//	MPU6050_setSlaveDataLength(0, 0);	
+//	MPU6050_setSlaveWriteMode(0, false);
+//	//MPU6050_setSlaveWordGroupOffset(0, true);
+//	MPU6050_setSlaveEnabled(0, true);
+	
+	MPU6050_setSlaveAddress(0, 0x80 + HMC5883L_I2C_ADDRESS);
+	MPU6050_setSlaveRegister(0, HMC5883L_RA_DATAX_H);
+	MPU6050_setSlaveDataLength(0, 6);	
+	MPU6050_setSlaveWriteMode(0, false);
+	MPU6050_setSlaveWordGroupOffset(0, true);
+	MPU6050_setSlaveWordByteSwap(0, false);
+	MPU6050_setSlaveEnabled(0, true);
+	printf("6050 slave:%d %d %d \n\r", 
+		(int16_t) MPU6050_getExternalSensorWord(0),
+		(int16_t) MPU6050_getExternalSensorWord(2),
+		(int16_t) MPU6050_getExternalSensorWord(4));
+
 //	if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 //		tm = DS1307_GetTime();
@@ -145,7 +185,7 @@ int main(void)
 
 	//HAL_UART_Transmit(&huart1, buf, 6, 100);
 
-
+		HAL_Delay(1000);
 
   /* USER CODE END 2 */
 
@@ -160,6 +200,13 @@ int main(void)
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		
 
+		xyz.X = (int16_t) MPU6050_getExternalSensorWord(0);
+		xyz.Z = (int16_t) MPU6050_getExternalSensorWord(2);
+		xyz.Y = (int16_t) MPU6050_getExternalSensorWord(4);
+//		printf("6050 slave:%d %d %d %d \n\r", 
+//			,
+//			(int16_t) MPU6050_getExternalSensorWord(2),
+//			(int16_t) MPU6050_getExternalSensorWord(4), MPU6050_getSlaveEnabled(0));
 
     BMP180_StartTemperature(&BMP180_Data);
 		HAL_Delay(BMP180_Data.Delay / 1000);
@@ -169,15 +216,18 @@ int main(void)
 		HAL_Delay(BMP180_Data.Delay / 1000);
 		BMP180_ReadPressure(&BMP180_Data);
 
-		HMC5883L_GetXYZ(&xyz);	
+//		HMC5883L_GetXYZ(&xyz);	
 		printf("T:%2.3f; P:%6d(%3.1f); Alt: %3.2fm; ang:%3.3f;\n\r",
 				BMP180_Data.Temperature,
 				BMP180_Data.Pressure, BMP180_GetHgPressure(BMP180_Data.Pressure), 
 				BMP180_Data.Altitude, HMC5883L_CountAngle(&xyz)
 		);
 		
-		MPU6050_GetRawAccelGyro(ag);
-		printf("T:%2.3f; X:%5d; Y:%5d; Z:%5d;\n\r", MPU6050_GetTemperature(MPU6050_GetRawTemperature()), ag[0], ag[1], ag[2]);
+		//MPU6050_GetRawAccelGyro(ag);
+		//printf("T:%2.3f; X:%5d; Y:%5d; Z:%5d;\n\r", MPU6050_GetTemperature(MPU6050_GetRawTemperature()), ag[0], ag[1], ag[2]);
+		printf("T:%2.3f; X:%5d; Y:%5d; Z:%5d;\n\r", 
+			MPU6050_computeTemperature(MPU6050_getTemperature()), 
+			MPU6050_getRotationX(), MPU6050_getRotationY(), MPU6050_getRotationZ());
 		
 //		if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //			tm = DS1307_GetTime();

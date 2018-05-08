@@ -541,6 +541,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\mpu6050.c</FilePath>
             </File>
+            <File>
+              <FileName>i2c_utill.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\i2c_utill.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
