@@ -1,5 +1,5 @@
-#ifndef hmc5883
-#define hmc5883
+#ifndef _HMC5883_H_
+#define _HMC5883_H_
 
 #include "i2c.h"
 #include "math.h"
@@ -150,4 +150,4 @@ int16_t HMC5883L_GetZ(void);
 void HMC5883L_GetXYZ(HMC5883L_XYZ_StructTypeDef *res);
 double HMC5883L_CountAngle(HMC5883L_XYZ_StructTypeDef *res);
 
-#endif // hmc5883
+#endif // _HMC5883_H_

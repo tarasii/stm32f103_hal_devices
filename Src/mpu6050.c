@@ -2969,7 +2969,8 @@ void MPU6050_readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, uin
         }
     }
 }
-/*bool MPU6050_writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify, bool useProgMem) {
+
+bool MPU6050_writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify, bool useProgMem) {
     MPU6050_setMemoryBank(bank, false, false);
     MPU6050_setMemoryStartAddress(address);
     uint8_t chunkSize;
@@ -3021,7 +3022,7 @@ void MPU6050_readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, uin
                 //    if (verifyBuffer[i + j] < 16) Serial.print("0");
                 //    Serial.print(verifyBuffer[i + j], HEX);
                 //}
-                Serial.print("\n");
+                //Serial.print("\n");
                 free(verifyBuffer);
                 if (useProgMem) free(progBuffer);
                 return false; // uh oh.
@@ -3084,7 +3085,7 @@ bool MPU6050_writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bo
             } else {
                 progBuffer = (uint8_t *)data + i;
             }
-            success = MPU6050_writeMemoryBlock(progBuffer, length, bank, offset, true);
+            success = MPU6050_writeMemoryBlock(progBuffer, length, bank, offset, true, false);
             i += length;
         } else {
             // special instruction
@@ -3125,7 +3126,7 @@ bool MPU6050_writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bo
 }
 bool MPU6050_writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize) {
     return MPU6050_writeDMPConfigurationSet(data, dataSize, true);
-}*/
+}
 
 // DMP_CFG_1 register
 

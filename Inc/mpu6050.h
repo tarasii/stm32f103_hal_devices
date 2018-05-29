@@ -43,11 +43,17 @@ THE SOFTWARE.
 #define _MPU6050_H_
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "i2c_utils.h"
 
 #if ((defined MPU6050_INCLUDE_DMP_MOTIONAPPS20) || (defined MPU6050_INCLUDE_DMP_MOTIONAPPS41))
     #error DMP is not supported yet
 #endif
+		
+#define pgm_read_byte(x) (*(x))
+#define pgm_read_word(x) (*(x))
+#define pgm_read_float(x) (*(x))
 
 #define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
 #define MPU6050_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
@@ -773,11 +779,11 @@ void MPU6050_setMemoryStartAddress(uint8_t address);
 uint8_t MPU6050_readMemoryByte(void);
 void MPU6050_writeMemoryByte(uint8_t data);
 void MPU6050_readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address);
-//bool MPU6050_writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify, bool useProgMem);
-//bool MPU6050_writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify);
+bool MPU6050_writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify, bool useProgMem);
+bool MPU6050_writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t bank, uint8_t address, bool verify);
 
-//bool MPU6050_writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem);
-//bool MPU6050_writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize);
+bool MPU6050_writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem);
+bool MPU6050_writeProgDMPConfigurationSet(const uint8_t *data, uint16_t dataSize);
 
 // DMP_CFG_1 register
 uint8_t MPU6050_getDMPConfig1(void);

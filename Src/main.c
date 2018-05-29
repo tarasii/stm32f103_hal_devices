@@ -49,6 +49,7 @@
 #include "bmp180.h"
 #include "hmc5883.h"
 #include "mpu6050.h"
+#include "mpu6050_dmp.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -82,7 +83,7 @@ int main(void)
 	DS1307_time tm;
 	BMP180_t BMP180_Data;
 	HMC5883L_XYZ_StructTypeDef xyz;
-	int16_t ag[6];
+	//int16_t ag[6];
 	//uint8_t i, tmp;
 	//uint8_t buf[20];
   /* USER CODE END 1 */
@@ -148,22 +149,6 @@ int main(void)
 	MPU6050_setI2CBypassEnabled(false);
 	MPU6050_setI2CMasterModeEnabled(true);
 
-	//read hmc5883 id
-//	MPU6050_setSlaveAddress(0, 128 + HMC5883L_I2C_ADDRESS);
-//	MPU6050_setSlaveRegister(0, HMC5883L_RA_ID_A);
-//	MPU6050_setSlaveDataLength(0, 3);	
-//	MPU6050_setSlaveEnabled(0, true);
-//			printf("6050 slave:%02x %02x %02x\n\r", 
-//	MPU6050_getExternalSensorByte(0),
-//	MPU6050_getExternalSensorByte(1),
-//	MPU6050_getExternalSensorByte(2));
-
-//	MPU6050_setSlaveAddress(0, HMC5883L_I2C_ADDRESS);
-//	MPU6050_setSlaveRegister(0, HMC5883L_RA_DATAX_H);
-//	MPU6050_setSlaveDataLength(0, 0);	
-//	MPU6050_setSlaveWriteMode(0, false);
-//	//MPU6050_setSlaveWordGroupOffset(0, true);
-//	MPU6050_setSlaveEnabled(0, true);
 	
 	MPU6050_setSlaveAddress(0, 0x80 + HMC5883L_I2C_ADDRESS);
 	MPU6050_setSlaveRegister(0, HMC5883L_RA_DATAX_H);
@@ -177,6 +162,14 @@ int main(void)
 		(int16_t) MPU6050_getExternalSensorWord(2),
 		(int16_t) MPU6050_getExternalSensorWord(4));
 
+  printf("6050 ax:%d %d %d \n\r", 
+		MPU6050_getAccelerationX(),
+		MPU6050_getAccelerationY(),
+		MPU6050_getAccelerationZ());
+
+
+  MPU6050_DMP_Init();
+		
 //	if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 //		tm = DS1307_GetTime();
@@ -185,7 +178,9 @@ int main(void)
 
 	//HAL_UART_Transmit(&huart1, buf, 6, 100);
 
-		HAL_Delay(1000);
+	HAL_Delay(1000);
+	
+	MPU6050_setDMPEnabled(true);
 
   /* USER CODE END 2 */
 
@@ -228,7 +223,12 @@ int main(void)
 		printf("T:%2.3f; X:%5d; Y:%5d; Z:%5d;\n\r", 
 			MPU6050_computeTemperature(MPU6050_getTemperature()), 
 			MPU6050_getRotationX(), MPU6050_getRotationY(), MPU6050_getRotationZ());
-		
+
+		printf("          X:%5d; Y:%5d; Z:%5d;\n\r", 
+			MPU6050_getAccelerationX(),
+			MPU6050_getAccelerationY(),
+			MPU6050_getAccelerationZ());
+
 //		if (I2C_IsDeviceConnected(&hi2c1, DS1307_I2C_ADDRESS) == HAL_OK){
 //			tm = DS1307_GetTime();
 //			printf("%02d:%02d:%02d\n\r", tm.hours, tm.minutes, tm.seconds);
